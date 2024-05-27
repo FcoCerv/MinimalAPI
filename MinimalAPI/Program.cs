@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MinimalAPI;
 using MinimalAPI.Entidades;
 using MinimalAPI.Migrations;
@@ -37,7 +38,7 @@ builder.Services.AddCors(opciones =>
 builder.Services.AddOutputCache();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IRepositorioGenero, RepositorioPacientes>();
+builder.Services.AddScoped<IRepositorioPedidos, RepositorioPedidos>();
 builder.Services.AddScoped<IRepositorioOCRD, RepositorioOCRD>();
 
 
@@ -56,7 +57,7 @@ app.UseOutputCache();
 
 //Aqui se crea un EndPoint post para enviar data
 var endpointsprospectos_ocrd = app.MapGroup("/prospectos");
-var endpointsPacientes = app.MapGroup("/pacientes");
+var endpointsPedidos = app.MapGroup("/pedidos");
 //Esta expresion esta en formato Lambda
 //app.MapGet("/", [EnableCors(policyName:"libre")]() => "Hola Mundo!");
 
@@ -75,13 +76,13 @@ endpointsprospectos_ocrd.MapPut("/{cardcode}", ActualizarProspecto);
 
 //endpointsPacientes.MapGet("/", ObtenerPacientes).CacheOutput(c => c.Expire(TimeSpan.FromSeconds(60)).Tag("pacientes-get"));
 
-//endpointsPacientes.MapGet("/{codigosn}", ObtenerPacientePorCodigoSN);
+endpointsPedidos.MapGet("/{cardcode}", ObtenerPedidoPorCardCode);
 
 //endpointsPacientes.MapGet("/{id:int}", ObtenerPacientePorId);
 
-//endpointsPacientes.MapPost("/", CrearPaciente);
+endpointsPedidos.MapPost("/", CrearPedido);
 
-//endpointsPacientes.MapPut("/{id:int}", ActualizarPaciente);
+endpointsPedidos.MapPut("/{cardcode}", ActualizarPedido);
 
 //endpointsPacientes.MapDelete("/{id:int}", BorrarPaciente);
 
@@ -96,16 +97,16 @@ app.Run();
 //    return TypedResults.Ok(pacientes);
 //}
 
-//static async Task<Results<Ok<Paciente>, NotFound>> ObtenerPacientePorCodigoSN(IRepositorioGenero repositorio, string codigosn)
-//{
-//    var paciente = await repositorio.ObtenerPorCodigoSn(codigosn);
+static async Task<Results<Ok<MinimalAPI.Entidades.Pedidos>, NotFound>> ObtenerPedidoPorCardCode(IRepositorioPedidos repositorio, string cardcode)
+{
+    var pedidos = await repositorio.ObtenerPedidoPorCardCode(cardcode);
 
-//    if (paciente == null)
-//    {
-//        return TypedResults.NotFound();
-//    }
-//    return TypedResults.Ok(paciente);
-//}
+    if (pedidos == null)
+    {
+        return TypedResults.NotFound();
+    }
+    return TypedResults.Ok(pedidos);
+}
 
 //static async Task<Results<Ok<Paciente>, NotFound>> ObtenerPacientePorId(IRepositorioGenero repositorio, int id) 
 //{
@@ -118,25 +119,25 @@ app.Run();
 //    return TypedResults.Ok(paciente);
 //}
 
-//static async Task<Created<Paciente>> CrearPaciente (Paciente paciente, IRepositorioGenero repositorio, IOutputCacheStore outputCacheStore)
-//{
-//    var id = await repositorio.Crear(paciente);
-//    await outputCacheStore.EvictByTagAsync("pacientes-get", default);
-//    return TypedResults.Created($"/pacientes/{id}", paciente);
-//}
+static async Task<Created<MinimalAPI.Entidades.Pedidos>> CrearPedido(MinimalAPI.Entidades.Pedidos pedidos, IRepositorioPedidos repositorio, IOutputCacheStore outputCacheStore)
+{
+    var id = await repositorio.Crear(pedidos);
+    await outputCacheStore.EvictByTagAsync("pedidos-get", default);
+    return TypedResults.Created($"/pedidos/{id}", pedidos);
+}
 
-//static async Task<Results<NoContent, NotFound>> ActualizarPaciente (int id, Paciente paciente, IRepositorioGenero repositorio, IOutputCacheStore outputCacheStore)
-//{
-//    var existe = await repositorio.Existe(id);
-//    if (!existe)
-//    {
-//        return TypedResults.NotFound();
-//    }
+static async Task<Results<NoContent, NotFound>> ActualizarPedido(string cardcode, MinimalAPI.Entidades.Pedidos pedidos, IRepositorioPedidos repositorio, IOutputCacheStore outputCacheStore)
+{
+    var existe = await repositorio.Existe(cardcode);
+    if (!existe)
+    {
+        return TypedResults.NotFound();
+    }
 
-//    await repositorio.Actualizar(paciente);
-//    await outputCacheStore.EvictByTagAsync("pacientes-get", default);
-//    return TypedResults.NoContent();
-//}
+    await repositorio.Actualizar(pedidos);
+    await outputCacheStore.EvictByTagAsync("pedidos-get", default);
+    return TypedResults.NoContent();
+}
 
 //static async Task<Results<NoContent, NotFound>> BorrarPaciente (int id, IRepositorioGenero repositorio, IOutputCacheStore outputCacheStore)
 //{
@@ -184,7 +185,7 @@ static async Task<Results<Ok<MinimalAPI.Entidades.OCRD_SalesForce>, NotFound>> O
 //}
 
 static async Task<Created<MinimalAPI.Entidades.OCRD_SalesForce>> CrearProspecto(MinimalAPI.Entidades.OCRD_SalesForce prospectos_ocrd, IRepositorioOCRD repositorio, IOutputCacheStore outputCacheStore)
-{
+{    
     var id = await repositorio.Crear(prospectos_ocrd);
     await outputCacheStore.EvictByTagAsync("prospectos-get", default);
     return TypedResults.Created($"/prospectos/{id}", prospectos_ocrd);
@@ -216,4 +217,11 @@ static async Task<Results<NoContent, NotFound>> ActualizarProspecto(string cardc
 //    await outputCacheStore.EvictByTagAsync("prospectos-get", default);
 //    return TypedResults.NoContent();
 //}
+
+
+
+
+
+
+
 

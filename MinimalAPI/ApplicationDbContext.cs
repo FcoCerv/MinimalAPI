@@ -11,14 +11,14 @@ namespace MinimalAPI
         {
         }
         public DbSet<OCRD_SalesForce> OCRDs { get; set; }
-        public DbSet<Paciente> Pacientes { get; set; }
+        public DbSet<Entidades.Pedidos> Pedidos { get; set; }
 
         //Se crea un metodo para crear el api fluente
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Paciente>().Property(p => p.Prospecto).HasMaxLength(50);
+            modelBuilder.Entity<Entidades.Pedidos>().Property(p => p.CardCode).HasMaxLength(50);
         }
     }
 }

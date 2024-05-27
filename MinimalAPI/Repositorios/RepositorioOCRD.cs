@@ -41,8 +41,9 @@ namespace MinimalAPI.Repositorios
         }
         public async Task Borrar(int id)
         {
-            await context.Pacientes.Where(x => x.Id == id).ExecuteDeleteAsync();
+            await context.Pedidos.Where(x => x.Id == id).ExecuteDeleteAsync();
         }
+        
               
 
         
