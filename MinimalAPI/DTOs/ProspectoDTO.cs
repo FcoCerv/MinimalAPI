@@ -1,6 +1,6 @@
-﻿namespace MinimalAPI.Entidades
+﻿namespace MinimalAPI.DTOs
 {
-    public class OCRD_SalesForce
+    public class ProspectoDTO
     {
         public int Id { get; set; }
         public string CardName { get; set; }
@@ -41,7 +41,5 @@
         public string U_RUTA { get; set; }
         public string Free_Text { get; set; }
         public string U_NimboID { get; set; }
-        
-
     }
 }

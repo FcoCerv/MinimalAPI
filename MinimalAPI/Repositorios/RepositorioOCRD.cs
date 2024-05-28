@@ -43,7 +43,6 @@ namespace MinimalAPI.Repositorios
         {
             await context.Pedidos.Where(x => x.Id == id).ExecuteDeleteAsync();
         }
-        
               
 
         
