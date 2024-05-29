@@ -21,7 +21,21 @@ namespace MinimalAPI.Endpoints
             //endpointsprospectos_ocrd.MapGet("/", ObtenerProspecto).CacheOutput(c => c.Expire(TimeSpan.FromSeconds(60)).Tag("prospectos-get"));
             //endpointsPacientes.MapGet("/", ObtenerPacientes).CacheOutput(c => c.Expire(TimeSpan.FromSeconds(60)).Tag("pacientes-get"));
             return group;
-        }        
+        }
+        static async Task<Created<ProspectoDTO>> CrearProspecto(CrearProspectosDTO crearProspectosDTO,
+            IRepositorioOCRD repositorio,
+            IOutputCacheStore outputCacheStore,IMapper mapper)
+        {
+            
+            var prospectos_ocrd = mapper.Map<OCRD_SalesForce>(crearProspectosDTO);
+
+            var id = await repositorio.Crear(prospectos_ocrd);
+            await outputCacheStore.EvictByTagAsync("prospectos-get", default);
+
+            var prospectoDTO = mapper.Map<ProspectoDTO>(prospectos_ocrd);
+
+            return TypedResults.Created($"/prospectos/{id}", prospectoDTO);
+        }
 
         static async Task<Results<Ok<ProspectoDTO>, NotFound>> ObtenerProspectoPorCardCode(IRepositorioOCRD repositorio,IMapper mapper, string cardcode)        {
             
@@ -36,32 +50,22 @@ namespace MinimalAPI.Endpoints
             return TypedResults.Ok(prospectoDTO);
         }        
 
-        static async Task<Created<ProspectoDTO>> CrearProspecto(CrearProspectosDTO crearProspectosDTO, 
-            IRepositorioOCRD repositorio, 
-            IOutputCacheStore outputCacheStore,
-            IMapper mapper)
-        {
 
-            var prospectos_ocrd = mapper.Map<OCRD_SalesForce>(crearProspectosDTO);
-            var id = await repositorio.Crear(prospectos_ocrd);
-            await outputCacheStore.EvictByTagAsync("prospectos-get", default);
-            var prospectoDTO = mapper.Map<ProspectoDTO>(prospectos_ocrd);
-            return TypedResults.Created($"/prospectos/{id}", prospectoDTO);
-        }
-
-        static async Task<Results<NoContent, NotFound>> ActualizarProspecto(string cardcode,int id, CrearProspectosDTO crearProspectosDTO, 
+        static async Task<Results<NoContent, NotFound>> ActualizarProspecto(string cardcode, int id, CrearProspectosDTO crearProspectosDTO, 
             IRepositorioOCRD repositorio, 
             IOutputCacheStore outputCacheStore,
             IMapper mapper)
         {
             
-            var existe = await repositorio.Existe(cardcode);
+            //var existe = await repositorio.Existe(cardcode);
+            var existe = await repositorio.Existe2(id);
             if (!existe)
             {
                 return TypedResults.NotFound();
             }
 
             var prospectos_ocrd = mapper.Map<OCRD_SalesForce>(crearProspectosDTO);
+            prospectos_ocrd.CardCode = cardcode;
             prospectos_ocrd.Id = id;
 
             await repositorio.Actualizar(prospectos_ocrd);

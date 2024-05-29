@@ -9,7 +9,7 @@ namespace MinimalAPI.Utilidades
         public AutoMapperProfiles() 
         {
             CreateMap<CrearProspectosDTO, OCRD_SalesForce>();
-            CreateMap<OCRD_SalesForce, CrearProspectosDTO>();   
+            CreateMap<OCRD_SalesForce, ProspectoDTO>();   
             
         }
     }

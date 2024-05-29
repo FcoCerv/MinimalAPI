@@ -8,7 +8,7 @@ namespace MinimalAPI.Repositorios
         Task<OCRD_SalesForce?> ObtenerPorId(int id);
         Task<OCRD_SalesForce?> ObtenerPorCardCode(string cardName);
         Task<int> Crear(OCRD_SalesForce ocrd);
-        //Task<bool> Existe(int id);
+        Task<bool> Existe2(int id);
         Task<bool> Existe(string cardcode);
         Task Actualizar(OCRD_SalesForce ocrd);
         Task Borrar(int id);

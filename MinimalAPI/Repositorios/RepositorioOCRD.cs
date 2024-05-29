@@ -27,6 +27,10 @@ namespace MinimalAPI.Repositorios
         {
             return await context.OCRDs.AnyAsync(p => p.CardCode == cardcode);
         }
+        public async Task<bool> Existe2(int id)
+        {
+            return await context.OCRDs.AnyAsync(p => p.Id == id);
+        }
         public async Task<OCRD_SalesForce?> ObtenerPorCardCode(string cardCode)
         {
             return await context.OCRDs.FirstOrDefaultAsync(x => x.CardCode == cardCode);
